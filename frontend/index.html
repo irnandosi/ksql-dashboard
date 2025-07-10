@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Branch Transaction Dashboard</title>
+</head>
+<body>
+  <h2>Live Branch Transactions</h2>
+  <table border="1" id="txTable">
+    <thead>
+      <tr>
+        <th>Branch ID</th>
+        <th>Transaction ID</th>
+        <th>Amount</th>
+        <th>Source Host</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function fetchData() {
+      const response = await fetch("/api/branch-summary");
+      const text = await response.text();
+      const lines = text.trim().split('\n');
+      const tbody = document.querySelector("#txTable tbody");
+      tbody.innerHTML = "";
+
+      lines.forEach(line => {
+        const obj = JSON.parse(line);
+        if (obj.row) {
+          const [branch_id, tx_id, amount, host] = obj.row.columns;
+          const row = `<tr>
+            <td>${branch_id}</td>
+            <td>${tx_id}</td>
+            <td>${amount}</td>
+            <td>${host}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        }
+      });
+    }
+
+    setInterval(fetchData, 2000);
+    fetchData();
+  </script>
+</body>
+</html>
